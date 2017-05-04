@@ -149,7 +149,7 @@ lam = diag(D);
 % Forcing function 
 Q = V.' * B*f;
 
-t = 0:0.1:100;
+t = 0:0.1:50;
 eta = zeros(N, length(t));
 for i = 1:N
    eta(i,:) = Q(i)/lam(i) * (-1 + exp(lam(i)*t)); 
@@ -199,7 +199,7 @@ end
 % Forcing function 
 Q = V_exact.' * B*f;
 
-t = 0:0.1:100;
+t = 0:0.1:50;
 eta = zeros(N, length(t));
 for i = 1:N
    eta(i,:) = Q(i)/lam_exact(i) * (-1 + exp(lam_exact(i)*t)); 
