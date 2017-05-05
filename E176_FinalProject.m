@@ -1,10 +1,11 @@
 %% E176 Final Project
 % Perturbation Method for Dynamical Systems
 % Daniel Nguyen and Austin Chun
+% Spring 2017
 
 % System constants
 m1 = 1; m2 = 1;                     % kg
-kc1 = 5.8; kc2 = 5.8; kc3 = 5.8;     % N/m
+kc1 = 5.8; kc2 = 5.8; kc3 = 5.8;    % N/m
 k1 = 5; k2 = 5;                     % N/m
 c1 = 0.2; c2 = 0.2;                 % Ns/m
 
@@ -24,16 +25,15 @@ f = [0; f1/m1; 0; f2/m2];
 
 
 % Solve for Eigegnvalues/vetors
-[U,D] = eig(A)
+[U,D] = eig(A);
 % Sort eigenvalues/vectors for 
-[~,perm]=sort(diag(D))
-D = D(perm,perm)
-
-U = U(:,perm)
+[~,perm]=sort(diag(D));
+D = D(perm,perm);
+U = U(:,perm);
 
 [V,D] = eig(A.');
 [~,perm]=sort(diag(D));
-D = D(perm,perm)
+D = D(perm,perm);
 V = V(:,perm);
 
 lam = diag(D);
@@ -59,13 +59,12 @@ x = U*eta;
 
 % Plotting
 figure(1)
-%subplot(3,1,1)
-plot(t,x(1,:), t,x(2,:), t,x(3,:),'--', t,x(4,:),'--')
+plot(t,x(1,:), t,x(3,:),'--')
 xlabel('Time [ s ]')
-ylabel('Amplitude [ m or m/s ]')
+ylabel('Displacement [ m ]')
 title('System Forced Response Exact, no perturbation')
 grid on
-legend('x_1(t)','v_1(t)','x_2(t)','v_2(t)')
+legend('x_1(t)','x_2(t)')
 set(gcf,'color','white')
 
 
@@ -93,7 +92,6 @@ dA = A - A_o;
 
 % recalculate Forcing
 f = [0; f1/m1; 0; f2/m2];
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Perturbation Analysis %%
@@ -148,8 +146,8 @@ lam = diag(D);
 
 % Forcing function 
 Q = V.' * B*f;
-
-t = 0:0.1:100;
+% Solve for eta
+t = 0:0.1:50;
 eta = zeros(N, length(t));
 for i = 1:N
    eta(i,:) = Q(i)/lam(i) * (-1 + exp(lam(i)*t)); 
@@ -160,33 +158,38 @@ x = U*eta;
 
 % Plotting
 figure(2)
-%subplot(3,1,2)
-plot(t,x(1,:), t,x(2,:), t,x(3,:),'--', t,x(4,:),'--')
+plot(t,x(1,:),  t,x(3,:),'--')
 xlabel('Time [ s ]')
-ylabel('Amplitude [ m or m/s ]')
+ylabel('Displacement [ m ]')
 title('System Forced Response with Perturbation Analysis')
 grid on
-legend('x_1(t)','v_1(t)','x_2(t)','v_2(t)')
+legend('x_1(t)','x_2(t)')
+set(gcf,'color','white')
+
+figure(12)
+plot(t,x(2,:),  t,x(4,:),'--')
+xlabel('Time [ s ]')
+ylabel('Velocity [ m/s ]')
+title('System Forced Response with Perturbation Analysis (velocity)')
+grid on
+legend('v_1(t)','v_2(t)')
 set(gcf,'color','white')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Exact Solution to Perturbed System %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A
 % Solve for Eigegnvalues/vetors
 [U_exact,D_exact] = eig(A);
 % Sort eigenvalues/vectors for 
-[~,perm]=sort(diag(D_exact))
+[~,perm]=sort(diag(D_exact));
 D_exact = D_exact(perm,perm);
 U_exact = U_exact(:,perm);
 
 [V_exact,D] = eig(A.');
-[~,perm]=sort(diag(D))
+[~,perm]=sort(diag(D));
 V_exact = V_exact(:,perm);
 
 lam_exact = diag(D_exact);
-
-
 
 % Normalize vectors
 VtU = V_exact.'*U_exact;
@@ -195,11 +198,10 @@ for i = 1:N
     V_exact(:,i) = V_exact(:,i) / sqrt(VtU(i,i));
 end
 
-
 % Forcing function 
 Q = V_exact.' * B*f;
-
-t = 0:0.1:100;
+% Solve for eta
+t = 0:0.1:50;
 eta = zeros(N, length(t));
 for i = 1:N
    eta(i,:) = Q(i)/lam_exact(i) * (-1 + exp(lam_exact(i)*t)); 
@@ -210,28 +212,88 @@ x_exact = U_exact*eta;
 
 % Plotting
 figure(3)
-%subplot(3,1,3)
-plot(t,x_exact(1,:), t,x_exact(2,:), t,x_exact(3,:),'--', t,x_exact(4,:),'--')
+plot(t,x_exact(1,:), t,x_exact(3,:),'--')
 xlabel('Time [ s ]')
-ylabel('Amplitude [ m or m/s ]')
+ylabel('Displacement [ m ]')
+legend('x_1(t)','x_2(t)')
 title('System Forced Response Exact, with perturbation')
+grid on
+set(gcf,'color','white')
+
+figure(13)
+plot(t,x_exact(2,:), t,x_exact(4,:),'--')
+xlabel('Time [ s ]')
+ylabel('Velocity [ m/s ]')
+legend('v_1(t)','v_2(t)')
+title('System Forced Response Exact, with perturbation (velocity)')
 grid on
 set(gcf,'color','white')
 
 %% Residuals
 
-x_resid = (x_exact - x); %./x_exact * 100;
+% Relative Error
+x_resid = (x_exact - x);
 
 figure(4)
 plot(t,x_resid(1,:),t,x_resid(3,:))
 xlabel('Time [ s ]')
-ylabel('Percent Deviation [ % ]')
+ylabel('Error [ m ]')
+title('Relative Error between System Responses')
 legend('x_1(t)','x_2(t)')
 grid on
+set(gcf,'color','white')
 
-%%
+figure(14)
+plot(t,x_resid(2,:),t,x_resid(4,:))
+xlabel('Time [ s ]')
+ylabel('Error [ m ]')
+title('Relative Error between System Responses (velocity)')
+legend('v_1(t)','v_2(t)')
+grid on
+set(gcf,'color','white')
+
+% Percent Error
+x_perc = (x_exact - x)./x_exact * 100;
+
 figure(5)
+plot(t,x_perc(1,:),t,x_perc(3,:))
+xlabel('Time [ s ]')
+ylabel('Percent Deviation [ % ]')
+title('Percent Error between System Responses')
+legend('x_1(t)','x_2(t)')
+grid on
+set(gcf,'color','white')
+
+figure(15)
+plot(t,x_perc(2,:),t,x_perc(4,:))
+xlabel('Time [ s ]')
+ylabel('Percent Deviation [ % ]')
+title('Percent Error between System Responses (velocity)')
+legend('v_1(t)','v_2(t)')
+grid on
+set(gcf,'color','white')
+
+%% Exact Comparison
+figure(6)
+subplot(2,1,1)
 plot(t,x(1,:), t,x_exact(1,:))
+xlabel('Time [ s ]')
+ylabel('Displacement [ m ]')
+title('Comparison of Exact vs Approximate Responses: x_1(t)')
+legend('Approximate','Exact')
+grid on
+set(gcf,'color','white')
+
+subplot(2,1,2)
+plot(t,x(3,:), t,x_exact(3,:))
+xlabel('Time [ s ]')
+ylabel('Displacement [ m ]')
+title('Comparison of Exact vs Approximate Responses: x_2(t)')
+legend('Approximate','Exact')
+grid on
+
+
+
 
 
 
